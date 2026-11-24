@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/terminal.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KuRuMi-Host | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ambient.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #222;
+            --bg-hover: #252525;
+            --text-primary: #fff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: #333;
+            --accent-color: #f97316;
+            --accent-hover: #ea580c;
+            --modal-bg: #222;
+            --input-bg: #1a1a1a;
+        }
+        
+        .light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-hover: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --border-color: #d1d5db;
+            --accent-color: #f97316;
+            --accent-hover: #ea580c;
+            --modal-bg: #ffffff;
+            --input-bg: #f9fafb;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        .header {
+            background: var(--bg-secondary);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .brand-icon {
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+        
+        .brand-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--bg-hover);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .theme-toggle svg {
+            width: 16px;
+            height: 16px;
+            position: absolute;
+            transition: all 0.4s ease;
+        }
+        
+        .theme-toggle .sun-icon {
+            opacity: 0;
+            transform: rotate(180deg) scale(0);
+        }
+        
+        .theme-toggle .moon-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+        
+        .light-theme .theme-toggle .sun-icon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+        
+        .light-theme .theme-toggle .moon-icon {
+            opacity: 0;
+            transform: rotate(-180deg) scale(0);
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .logout-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        
+        .logout-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .admin-orders-link {
+            color: var(--accent-color);
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .admin-orders-link:hover { color: var(--text-primary); }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .user-info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .user-info-item svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+        }
+
+        .renew-plan-link {
+            color: var(--accent-color);
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .renew-plan-link:hover { color: var(--text-primary); }
+        
+        .main-content {
+            padding: 25px 20px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+        
+        .instances-count {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        .new-instance-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-color);
+            border: none;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .new-instance-btn:hover {
+            background: var(--accent-hover);
+        }
+        
+        .new-instance-btn:disabled {
+            cursor: not-allowed;
+        }
+        
+        .new-instance-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .new-instance-btn .lock-icon {
+            display: none;
+        }
+        
+        .new-instance-btn.locked {
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        
+        .new-instance-btn.locked:hover {
+            background: var(--bg-hover);
+        }
+        
+        .new-instance-btn.locked .plus-icon {
+            display: none;
+        }
+        
+        .new-instance-btn.locked .lock-icon {
+            display: block;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-icon {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+        
+        .empty-icon svg {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .empty-text {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+        
+        .instances-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .instance-card {
+            padding: 20px 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .instance-card:hover {
+            background: var(--bg-hover);
+        }
+        
+        .instance-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .instance-icon {
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .instance-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .instance-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .instance-date {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 15px;
+            padding-left: 36px;
+        }
+        
+        .btn-delete {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            padding: 8px 0;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            margin-left: 36px;
+            transition: color 0.2s;
+        }
+        
+        .btn-delete:hover {
+            color: #f87171;
+        }
+        
+        .btn-delete svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+        }
+        
+        .modal {
+            background: var(--modal-bg);
+            border-radius: 16px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border-color);
+            transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+            transform: scale(0.9);
+        }
+        
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            outline: none;
+            margin-bottom: 20px;
+            transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .modal-input:focus {
+            border-color: var(--accent-color);
+        }
+        
+        .modal-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            background: var(--bg-hover);
+            border: none;
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-cancel:hover {
+            background: var(--border-color);
+        }
+        
+        .btn-create {
+            background: var(--accent-color);
+            border: none;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
+        
+        .btn-create:hover {
+            background: var(--accent-hover);
+        }
+        
+        .delete-modal-content {
+            text-align: center;
+        }
+        
+        .delete-modal-text {
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .delete-modal-subtext {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        .delete-modal-name {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        .delete-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .btn-delete-cancel {
+            background: var(--accent-color);
+            border: none;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-delete-cancel:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+        }
+        
+        .btn-delete-confirm {
+            background: #ef4444;
+            border: none;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-delete-confirm:hover {
+            background: #dc2626;
+            transform: scale(1.02);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-overlay.show .delete-modal-content {
+            animation: slideUp 0.3s ease forwards;
+        }
+
+        :root {
+            --bg-primary: #0a0812;
+            --bg-secondary: rgba(20, 16, 32, 0.78);
+            --bg-hover: rgba(164, 119, 255, 0.12);
+            --text-primary: #f4efff;
+            --text-secondary: #b4a8c9;
+            --text-muted: #80748f;
+            --border-color: rgba(196, 163, 255, 0.2);
+            --accent-color: #b78aff;
+            --accent-hover: #c8a9ff;
+            --modal-bg: rgba(24, 18, 38, 0.88);
+            --input-bg: rgba(8, 7, 16, 0.66);
+        }
+
+        .light-theme {
+            --bg-primary: #f3effa;
+            --bg-secondary: rgba(255, 255, 255, 0.78);
+            --bg-hover: rgba(113, 70, 177, 0.09);
+            --text-primary: #211932;
+            --text-secondary: #594d6e;
+            --text-muted: #81758f;
+            --border-color: rgba(104, 76, 144, 0.2);
+            --accent-color: #7042bd;
+            --accent-hover: #5a2da8;
+            --modal-bg: rgba(250, 247, 255, 0.92);
+            --input-bg: rgba(255, 255, 255, 0.78);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-primary);
+            background-image: linear-gradient(rgba(183, 138, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(183, 138, 255, 0.035) 1px, transparent 1px), radial-gradient(ellipse at 85% 0%, rgba(116, 67, 200, 0.19), transparent 48%);
+            background-size: 36px 36px, 36px 36px, auto;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(18px);
+            border-bottom-color: var(--border-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+        }
+
+        .main-content {
+            width: min(100%, 1120px);
+            margin: 0 auto;
+            padding: 38px 24px 60px;
+        }
+
+        .brand-icon, .instance-icon, .user-info-item svg { filter: drop-shadow(0 0 8px rgba(183, 138, 255, 0.32)); }
+
+        .theme-toggle, .logout-btn, .btn-cancel, .btn-delete, .sc-btn, #toggleBtn {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.045);
+            backdrop-filter: blur(12px);
+        }
+
+        .theme-toggle:hover, .logout-btn:hover, .btn-cancel:hover {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 18px rgba(183, 138, 255, 0.15);
+        }
+
+        .new-instance-btn, .btn-create, .btn-delete-cancel {
+            background: linear-gradient(110deg, #7042bd, #a56dff 58%, #53cde1);
+            border: 1px solid rgba(227, 208, 255, 0.34);
+            box-shadow: 0 0 22px rgba(151, 96, 255, 0.25), inset 0 1px rgba(255, 255, 255, 0.22);
+            transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+        }
+
+        .new-instance-btn:hover, .btn-create:hover, .btn-delete-cancel:hover {
+            background: linear-gradient(110deg, #8152d0, #b27aff 58%, #6addf0);
+            transform: translateY(-1px);
+            box-shadow: 0 0 28px rgba(151, 96, 255, 0.38);
+        }
+
+        .new-instance-btn.locked { background: rgba(255, 255, 255, 0.04); box-shadow: none; }
+
+        .instances-list { gap: 10px; }
+
+        .instance-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.035);
+            backdrop-filter: blur(14px);
+            box-shadow: inset 0 1px rgba(255, 255, 255, 0.035);
+            animation: card-arrive 420ms ease both;
+        }
+
+        .instance-card:hover {
+            background: rgba(183, 138, 255, 0.075);
+            border-color: rgba(183, 138, 255, 0.42);
+            box-shadow: 0 0 26px rgba(128, 79, 205, 0.12), inset 0 1px rgba(255, 255, 255, 0.07);
+        }
+
+        .empty-state {
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.025);
+            backdrop-filter: blur(12px);
+        }
+
+        .modal-overlay { backdrop-filter: blur(12px); }
+
+        .modal {
+            border-radius: 8px;
+            background: var(--modal-bg);
+            backdrop-filter: blur(24px);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42), 0 0 35px rgba(151, 96, 255, 0.12);
+        }
+
+        .modal-input { border-width: 1px; border-radius: 6px; }
+        .modal-input:focus { box-shadow: 0 0 0 3px rgba(183, 138, 255, 0.14); }
+        .btn-delete-confirm { box-shadow: 0 0 18px rgba(239, 68, 68, 0.2); }
+
+        @keyframes card-arrive {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .main-content { padding: 28px 16px 44px; }
+            .header { padding: 12px 16px; }
+            .user-info { flex-wrap: wrap; gap: 8px 16px; }
+            .section-header { align-items: center; gap: 14px; }
+            .new-instance-btn { padding: 10px 13px; white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="4 17 10 11 4 5"></polyline>
+                        <line x1="12" y1="19" x2="20" y2="19"></line>
+                    </svg>
+                </div>
+                <span class="brand-name">KuRuMi-Host</span>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <a href="/logout" class="logout-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </a>
+                <a class="admin-orders-link" id="adminOrdersLink" href="/admin/orders" hidden>Payment review</a>
+                <a class="admin-orders-link" id="adminUsersLink" href="/admin/users" hidden>Customer accounts</a>
+            </div>
+        </div>
+        <div class="user-info">
+            <div class="user-info-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span id="usernameDisplay">Loading...</span>
+            </div>
+            <div class="user-info-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Expires: <span id="expiryDate">--</span></span>
+            </div>
+            <div class="user-info-item"><span>Member since: <span id="createdDate">--</span></span></div>
+            <a class="renew-plan-link" id="renewPlanLink" href="/plans.html" hidden>Renew plan</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="section-header">
+            <div>
+                <h1 class="section-title">Terminal Instances</h1>
+                <p class="instances-count"><span id="usedCount">0</span>/<span id="maxCount">0</span> instances used</p>
+            </div>
+            <button class="new-instance-btn" id="newInstanceBtn" onclick="showModal()">
+                <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>New Instance</span>
+            </button>
+        </div>
+        
+        <div id="instancesList">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="4 17 10 11 4 5"></polyline>
+                        <line x1="12" y1="19" x2="20" y2="19"></line>
+                    </svg>
+                </div>
+                <p class="empty-text">No instances available</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="modalOverlay" onclick="hideModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h2 class="modal-title">Create New Instance</h2>
+            <input type="text" class="modal-input" id="instanceName" placeholder="Enter instance name" maxlength="30">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="hideModal()">Cancel</button>
+                <button class="btn-create" onclick="createInstance()">Create</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="deleteModalOverlay" onclick="hideDeleteModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="delete-modal-content">
+                <p class="delete-modal-text">Instance Removed</p>
+                <p class="delete-modal-subtext">Delete <span class="delete-modal-name" id="deleteInstanceName"></span>?</p>
+                <div class="delete-modal-actions">
+                    <button class="btn-delete-cancel" onclick="hideDeleteModal()">Cancel</button>
+                    <button class="btn-delete-confirm" onclick="confirmDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let userData = null;
+        let instances = [];
+        let deleteInstanceId = null;
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('kurumihost-theme', isLight ? 'light' : 'dark');
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('kurumihost-theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+            }
+        }
+        
+        loadTheme();
+        
+        async function loadUserData() {
+            try {
+                const res = await fetch('/user-session');
+                userData = await res.json();
+                
+                if (!userData.username) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                document.getElementById('usernameDisplay').textContent = userData.username;
+                document.getElementById('adminOrdersLink').hidden = !userData.is_admin;
+                document.getElementById('adminUsersLink').hidden = !userData.is_admin;
+                document.getElementById('renewPlanLink').hidden = !userData.expiry_date || userData.is_admin;
+                document.getElementById('createdDate').textContent = userData.created_at
+                    ? new Date(userData.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '--';
+                document.getElementById('usedCount').textContent = userData.instances_used || 0;
+                const hasInstanceLimit = Number.isFinite(userData.instance_count);
+                document.getElementById('maxCount').textContent = hasInstanceLimit ? userData.instance_count : 'Unlimited';
+                
+                if (userData.expiry_date) {
+                    const date = new Date(userData.expiry_date);
+                    const formattedDate = date.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                    });
+                    document.getElementById('expiryDate').textContent = userData.is_locked
+                        ? `${formattedDate} · Expired`
+                        : `${formattedDate} · ${userData.days_remaining} days left`;
+                } else {
+                    document.getElementById('expiryDate').textContent = 'Never';
+                }
+                
+                const btn = document.getElementById('newInstanceBtn');
+                const usedInstances = userData.instances_used || 0;
+                const shouldLock = userData.is_locked || (hasInstanceLimit && (userData.instance_count <= 0 || usedInstances >= userData.instance_count));
+                if (shouldLock) {
+                    btn.classList.add('locked');
+                    btn.disabled = true;
+                } else {
+                    btn.classList.remove('locked');
+                    btn.disabled = false;
+                }
+                
+                loadInstances();
+            } catch (e) {
+                console.error('Error loading user data:', e);
+            }
+        }
+        
+        async function loadInstances() {
+            try {
+                const res = await fetch('/api/instances');
+                instances = await res.json();
+                renderInstances();
+            } catch (e) {
+                console.error('Error loading instances:', e);
+            }
+        }
+        
+        function renderInstances() {
+            const container = document.getElementById('instancesList');
+            
+            if (instances.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="4 17 10 11 4 5"></polyline>
+                                <line x1="12" y1="19" x2="20" y2="19"></line>
+                            </svg>
+                        </div>
+                        <p class="empty-text">No instances available</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '<div class="instances-list">' + instances.map(instance => {
+                const date = new Date(instance.created);
+                const dateStr = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                
+                return `
+                    <div class="instance-card" data-instance-id="${escapeHtml(instance.id)}">
+                        <div class="instance-header">
+                            <div class="instance-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="4 17 10 11 4 5"></polyline>
+                                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                                </svg>
+                            </div>
+                            <span class="instance-name">${escapeHtml(instance.name)}</span>
+                        </div>
+                        <p class="instance-date">Created: ${dateStr}</p>
+                        <button class="btn-delete" data-delete-instance data-instance-id="${escapeHtml(instance.id)}" data-instance-name="${escapeHtml(instance.name)}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                `;
+            }).join('') + '</div>';
+            
+            document.getElementById('usedCount').textContent = instances.length;
+        }
+
+        document.getElementById('instancesList').addEventListener('click', function(event) {
+            const deleteButton = event.target.closest('[data-delete-instance]');
+            if (deleteButton) {
+                event.stopPropagation();
+                showDeleteModal(deleteButton.dataset.instanceId, deleteButton.dataset.instanceName);
+                return;
+            }
+
+            const card = event.target.closest('.instance-card');
+            if (card) openTerminal(card.dataset.instanceId);
+        });
+        
+        function showModal() {
+            const modal = document.getElementById('modalOverlay');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+            document.getElementById('instanceName').value = '';
+            document.getElementById('instanceName').focus();
+        }
+        
+        function hideModal() {
+            const modal = document.getElementById('modalOverlay');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        
+        function showDeleteModal(id, name) {
+            deleteInstanceId = id;
+            document.getElementById('deleteInstanceName').textContent = name;
+            const modal = document.getElementById('deleteModalOverlay');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+        
+        function hideDeleteModal() {
+            deleteInstanceId = null;
+            const modal = document.getElementById('deleteModalOverlay');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        
+        async function confirmDelete() {
+            if (!deleteInstanceId) return;
+            
+            try {
+                const res = await fetch(`/api/instances/${deleteInstanceId}`, { method: 'DELETE' });
+                
+                if (res.ok) {
+                    hideDeleteModal();
+                    loadInstances();
+                    loadUserData();
+                } else {
+                    alert('Failed to delete instance');
+                }
+            } catch (e) {
+                alert('Error deleting instance');
+            }
+        }
+        
+        async function createInstance() {
+            const name = document.getElementById('instanceName').value.trim();
+            if (!name) {
+                alert('Please enter an instance name');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/instances', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    hideModal();
+                    loadInstances();
+                    loadUserData();
+                } else {
+                    alert(data.error || 'Failed to create instance');
+                }
+            } catch (e) {
+                alert('Error creating instance');
+            }
+        }
+        
+        function openTerminal(instanceId) {
+            window.location.href = `/terminal/${instanceId}`;
+        }
+        
+        document.getElementById('instanceName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                createInstance();
+            }
+        });
+        
+        loadUserData();
+    </script>
+    <footer class="site-copyright">© <time data-current-year>2026</time> KuRuMi-Host</footer>
+    <script src="/year.js" defer></script>
+    <script type="module" src="/ambient-background.mjs"></script>
+</body>
+</html>

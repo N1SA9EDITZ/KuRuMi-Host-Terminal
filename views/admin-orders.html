@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KuRuMi-Host | Payment Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ambient.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 28px;
+            color: #f3edff;
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #090710;
+            background-image: linear-gradient(rgba(185,143,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(185,143,255,.035) 1px, transparent 1px), radial-gradient(ellipse at 85% 0%, rgba(116,67,200,.19), transparent 50%);
+            background-size: 36px 36px, 36px 36px, auto;
+        }
+        .shell { width: min(100%, 1100px); margin: 0 auto; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 36px; }
+        .brand { color: #f3edff; font-size: 19px; font-weight: 700; text-decoration: none; }
+        .nav { display: flex; gap: 16px; font-size: 13px; }
+        a { color: #c39aff; text-decoration: none; }
+        a:hover { color: #75d9e8; }
+        .eyebrow { color: #c39aff; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        h1 { margin: 6px 0 8px; font-size: 34px; }
+        .intro { color: #a89abf; }
+        .notice { margin: 20px 0; padding: 13px 15px; color: #e8d9ff; background: rgba(146,97,219,.1); border: 1px solid rgba(183,138,255,.25); border-radius: 6px; font-size: 13px; line-height: 1.5; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin: 25px 0 12px; color: #a89abf; font-size: 13px; }
+        .refresh, .action {
+            min-height: 38px;
+            padding: 0 13px;
+            color: #fff;
+            background: linear-gradient(110deg, #7544d8, #a56dff 55%, #56cde8);
+            border: 1px solid rgba(208,185,255,.28);
+            border-radius: 6px;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .refresh:hover, .action:hover { box-shadow: 0 0 20px rgba(151,96,255,.25); }
+        .orders { display: grid; gap: 10px; }
+        .order {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 18px;
+            align-items: center;
+            padding: 18px;
+            background: rgba(22,17,36,.72);
+            border: 1px solid rgba(201,168,255,.2);
+            border-radius: 8px;
+            backdrop-filter: blur(18px);
+        }
+        .order-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+        .order-title strong { font-size: 17px; }
+        .status { padding: 3px 8px; color: #f4d18c; background: rgba(244,209,140,.1); border: 1px solid rgba(244,209,140,.22); border-radius: 999px; font-size: 11px; text-transform: uppercase; }
+        .status.approved { color: #83e3c2; background: rgba(83,211,167,.1); border-color: rgba(83,211,167,.25); }
+        .status.rejected { color: #ff9aab; background: rgba(255,130,155,.1); border-color: rgba(255,130,155,.25); }
+        .details { display: flex; flex-wrap: wrap; gap: 7px 18px; color: #b4a8c9; font-size: 12px; overflow-wrap: anywhere; }
+        .details span b { color: #e8dfff; font-weight: 600; }
+        .actions { display: flex; gap: 8px; }
+        .action.reject { color: #ffc0cc; background: rgba(130,39,68,.4); border-color: rgba(255,130,155,.24); }
+        .empty, .error { padding: 30px 18px; color: #a89abf; text-align: center; border: 1px dashed rgba(201,168,255,.2); border-radius: 8px; background: rgba(22,17,36,.42); }
+        .error { color: #ff9aab; }
+        @media (max-width: 700px) { body { padding: 20px 14px; } .order { grid-template-columns: 1fr; } .actions { justify-content: flex-start; } h1 { font-size: 28px; } }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header class="topbar">
+            <a class="brand" href="/dashboard">KuRuMi-Host</a>
+            <nav class="nav"><a href="/admin/users">Customer accounts</a><a href="/dashboard">Dashboard</a><a href="/logout">Logout</a></nav>
+        </header>
+        <p class="eyebrow">Admin · NISAN</p>
+        <h1>Payment review</h1>
+        <p class="intro">Review bKash/Nagad transaction IDs before approving a monthly plan.</p>
+        <div class="notice">Customer terminal activation is blocked until an isolated Docker backend is configured. Approval will fail safely until then.</div>
+        <div class="toolbar">
+            <span id="orderCount">Loading requests…</span>
+            <button class="refresh" id="refreshOrders" type="button">Refresh</button>
+        </div>
+        <section class="orders" id="orders" aria-live="polite"></section>
+        <p class="error" id="pageError" hidden></p>
+    </main>
+    <script>
+        const ordersContainer = document.getElementById('orders');
+        const orderCount = document.getElementById('orderCount');
+        const pageError = document.getElementById('pageError');
+
+        function addDetail(container, label, value) {
+            const item = document.createElement('span');
+            const title = document.createElement('b');
+            title.textContent = `${label}: `;
+            item.append(title, document.createTextNode(value || '—'));
+            container.append(item);
+        }
+
+        function renderOrders(items) {
+            ordersContainer.replaceChildren();
+            orderCount.textContent = `${items.length} request${items.length === 1 ? '' : 's'}`;
+            if (!items.length) {
+                const empty = document.createElement('div');
+                empty.className = 'empty';
+                empty.textContent = 'No payment requests yet.';
+                ordersContainer.append(empty);
+                return;
+            }
+
+            for (const order of items) {
+                const row = document.createElement('article');
+                row.className = 'order';
+                const info = document.createElement('div');
+                const title = document.createElement('div');
+                title.className = 'order-title';
+                const username = document.createElement('strong');
+                username.textContent = order.username;
+                const status = document.createElement('span');
+                status.className = `status ${order.status}`;
+                status.textContent = order.status;
+                title.append(username, status);
+                const details = document.createElement('div');
+                details.className = 'details';
+                addDetail(details, 'Request', order.type === 'renewal' ? 'Renewal' : 'New account');
+                addDetail(details, 'Email', order.email);
+                addDetail(details, 'Phone', order.phone);
+                addDetail(details, 'Payment', order.paymentMethod);
+                addDetail(details, 'TxID', order.transactionId);
+                addDetail(details, 'Plan', `${order.durationMonths} months · ${order.terminalLimit} terminals`);
+                addDetail(details, 'Total', `৳${order.price} (${order.discountPercent}% off ৳${order.basePrice})`);
+                addDetail(details, 'Submitted', new Date(order.createdAt).toLocaleString());
+                info.append(title, details);
+                row.append(info);
+
+                if (order.status === 'pending') {
+                    const actions = document.createElement('div');
+                    actions.className = 'actions';
+                    for (const actionName of ['approve', 'reject']) {
+                        const button = document.createElement('button');
+                        button.className = `action ${actionName}`;
+                        button.type = 'button';
+                        button.dataset.action = actionName;
+                        button.dataset.orderId = order.id;
+                        button.textContent = actionName === 'approve' ? 'Approve' : 'Reject';
+                        actions.append(button);
+                    }
+                    row.append(actions);
+                }
+                ordersContainer.append(row);
+            }
+        }
+
+        async function loadOrders() {
+            pageError.hidden = true;
+            try {
+                const response = await fetch('/api/admin/orders');
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Could not load payment requests.');
+                renderOrders(result);
+            } catch (error) {
+                pageError.textContent = error.message;
+                pageError.hidden = false;
+            }
+        }
+
+        ordersContainer.addEventListener('click', async event => {
+            const button = event.target.closest('[data-action]');
+            if (!button) return;
+            button.disabled = true;
+            try {
+                const response = await fetch(`/api/admin/orders/${encodeURIComponent(button.dataset.orderId)}/${button.dataset.action}`, { method: 'POST' });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Could not review request.');
+                await loadOrders();
+            } catch (error) {
+                pageError.textContent = error.message;
+                pageError.hidden = false;
+                button.disabled = false;
+            }
+        });
+
+        document.getElementById('refreshOrders').addEventListener('click', loadOrders);
+        loadOrders();
+    </script>
+    <footer class="site-copyright">© <time data-current-year>2026</time> KuRuMi-Host</footer>
+    <script src="/year.js" defer></script>
+    <script type="module" src="/ambient-background.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/terminal.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>KuRuMi-Host | Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ambient.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.1.0/css/xterm.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #111;
+            padding: 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 55px;
+            border-bottom: 2px solid #f97316;
+            flex-shrink: 0;
+        }
+        
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-btn {
+            color: #f97316;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: #222;
+        }
+        
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .brand-icon {
+            color: #f97316;
+        }
+        
+        .brand-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+        
+        .brand-name {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .loader-container {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(249, 115, 22, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #f97316;
+        }
+        
+        .cmd-spinner {
+            border: 2px solid rgba(249, 115, 22, 0.3);
+            border-top: 2px solid #f97316;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        .loading-text {
+            color: #f97316;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .right-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-stop {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #7f1d1d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
+        
+        .btn-stop:hover {
+            background: #991b1b;
+        }
+        
+        .btn-stop svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        #toggleBtn {
+            background: #2a2a2a;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        
+        .shortcut-bar {
+            background: #1a1a1a;
+            width: 100%;
+            display: none;
+            justify-content: space-around;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            flex-shrink: 0;
+        }
+        
+        .sc-btn {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #3a3a3a;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            flex-grow: 1;
+            margin: 0 4px;
+        }
+        
+        .sc-btn:active {
+            background: #f97316;
+            border-color: #f97316;
+        }
+        
+        #terminal-container {
+            flex-grow: 1;
+            width: 100%;
+            background: #000;
+            padding: 10px;
+        }
+        
+        #terminal-container .xterm {
+            height: 100%;
+        }
+        
+        .footer {
+            background: #000;
+            padding: 8px 15px;
+            border-top: none;
+            flex-shrink: 0;
+            font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+        }
+        
+        .footer-info {
+            display: flex;
+            align-items: center;
+            color: #22c55e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .footer-name {
+            color: #22c55e;
+        }
+        
+        .footer-time {
+            color: #22c55e;
+            margin-left: 10px;
+        }
+        
+        .footer-date {
+            color: #22c55e;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #090710;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(116, 67, 200, 0.16), transparent 54%);
+        }
+
+        .header, .shortcut-bar, .footer {
+            background: rgba(20, 16, 32, 0.86);
+            backdrop-filter: blur(18px);
+        }
+
+        .header {
+            border-bottom: 1px solid rgba(196, 163, 255, 0.24);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+        }
+
+        .back-btn, .brand-icon, .loading-text { color: #c39aff; }
+        .brand-icon { filter: drop-shadow(0 0 8px rgba(183, 138, 255, 0.42)); }
+        .brand-name { color: #f2ecff; }
+
+        .loader-container {
+            background: rgba(160, 111, 255, 0.1);
+            border-color: rgba(183, 138, 255, 0.42);
+            backdrop-filter: blur(12px);
+        }
+
+        .cmd-spinner { border-color: rgba(183, 138, 255, 0.22); border-top-color: #c39aff; }
+
+        .btn-stop, #toggleBtn, .sc-btn {
+            border: 1px solid rgba(196, 163, 255, 0.24);
+            border-radius: 6px;
+            backdrop-filter: blur(12px);
+            transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+
+        .btn-stop {
+            background: rgba(156, 48, 91, 0.42);
+            box-shadow: inset 0 1px rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-stop:hover { background: rgba(190, 53, 109, 0.58); box-shadow: 0 0 18px rgba(255, 89, 150, 0.2); }
+        #toggleBtn, .sc-btn { background: rgba(255, 255, 255, 0.055); color: #eee5ff; }
+        #toggleBtn:hover, .sc-btn:hover, .sc-btn:active { background: rgba(155, 101, 238, 0.24); border-color: rgba(195, 154, 255, 0.6); box-shadow: 0 0 18px rgba(151, 96, 255, 0.2); }
+
+        .shortcut-bar { border-bottom-color: rgba(196, 163, 255, 0.18); }
+
+        #terminal-container {
+            margin: 10px 12px;
+            width: calc(100% - 24px);
+            border: 1px solid rgba(183, 138, 255, 0.22);
+            border-radius: 8px;
+            background: rgba(5, 5, 10, 0.92);
+            box-shadow: 0 0 32px rgba(128, 79, 205, 0.1), inset 0 0 30px rgba(61, 35, 97, 0.08);
+        }
+
+        .footer { border-top: 1px solid rgba(196, 163, 255, 0.16); }
+        .footer-info, .footer-name, .footer-time, .footer-date { color: #c4a0ff; }
+
+        @media (max-width: 560px) {
+            .header { padding: 0 9px; }
+            .left-section { gap: 8px; }
+            .brand-name { font-size: 14px; }
+            .btn-stop { padding: 8px 10px; }
+            #terminal-container { margin: 7px; width: calc(100% - 14px); padding: 7px; }
+            .sc-btn { padding: 9px 5px; margin: 0 2px; font-size: 12px; }
+        }
+    </style>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.1.0/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.7.0/lib/xterm-addon-fit.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="left-section">
+            <a href="/dashboard" class="back-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5"></path>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </a>
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="4 17 10 11 4 5"></polyline>
+                        <line x1="12" y1="19" x2="20" y2="19"></line>
+                    </svg>
+                </div>
+                <span class="brand-name" id="instanceName">Terminal</span>
+            </div>
+            <div class="loader-container" id="cmdLoader">
+                <div class="cmd-spinner"></div>
+                <span class="loading-text">Working...</span>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <button class="btn-stop" onclick="stopTerminal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <rect x="9" y="9" width="6" height="6"></rect>
+                </svg>
+                Stop
+            </button>
+            <button id="toggleBtn" onclick="toggleShortcuts()">v</button>
+        </div>
+    </div>
+
+    <div class="shortcut-bar" id="shortcutBar">
+        <button class="sc-btn" onclick="sendKey('\x03')">Ctrl+C</button>
+        <button class="sc-btn" onclick="sendKey('clear\r')">Clear</button>
+        <button class="sc-btn" onclick="sendKey('ls\r')">List</button>
+        <button class="sc-btn" onclick="sendKey('\r')">Enter</button>
+    </div>
+
+    <div id="terminal-container"></div>
+    
+    <div class="footer">
+        <div class="footer-info">
+            <span class="footer-name" id="footerName">[Terminal]</span>
+            <span class="footer-time" id="footerTime">00:00</span>
+            <span class="footer-date" id="footerDate">01-Jan-00</span>
+            <span class="footer-copyright">© <time data-current-year>2026</time> KuRuMi-Host</span>
+        </div>
+    </div>
+    
+    <script>
+        const socket = io({ 
+            transports: ['websocket', 'polling'], 
+            upgrade: true,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
+        });
+        
+        const term = new Terminal({
+            cursorBlink: true,
+            cursorStyle: 'block',
+            fontSize: 15,
+            fontFamily: '"Cascadia Code", "Fira Code", "Courier New", monospace',
+            fontWeight: 'normal',
+            scrollback: 10000,
+            theme: {
+                background: '#000000',
+                foreground: '#d9c9ff',
+                cursor: '#c39aff',
+                cursorAccent: '#000000',
+                selection: 'rgba(183, 138, 255, 0.3)',
+                black: '#000000',
+                red: '#ff5555',
+                green: '#9ee8d7',
+                yellow: '#f1fa8c',
+                blue: '#b696ff',
+                magenta: '#e49bff',
+                cyan: '#75d9e8',
+                white: '#f8f8f2'
+            },
+            allowTransparency: false,
+            convertEol: true
+        });
+
+        const fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+        
+        const container = document.getElementById('terminal-container');
+        term.open(container);
+        
+        setTimeout(() => {
+            fitAddon.fit();
+        }, 100);
+
+        const loader = document.getElementById('cmdLoader');
+        let loaderTimeout;
+        let instanceData = null;
+
+        function showLoader() {
+            loader.style.display = 'flex';
+            clearTimeout(loaderTimeout);
+            loaderTimeout = setTimeout(() => {
+                loader.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideLoader() {
+            clearTimeout(loaderTimeout);
+            loaderTimeout = setTimeout(() => {
+                loader.style.display = 'none';
+            }, 300);
+        }
+        
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('footerTime').textContent = `${hours}:${minutes}`;
+            
+            const day = String(now.getDate()).padStart(2, '0');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = months[now.getMonth()];
+            const year = String(now.getFullYear()).slice(-2);
+            document.getElementById('footerDate').textContent = `${day}-${month}-${year}`;
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        async function loadInstanceData() {
+            const pathParts = window.location.pathname.split('/');
+            const instanceId = pathParts[pathParts.length - 1];
+            
+            try {
+                const res = await fetch(`/api/instances/${instanceId}`);
+                if (res.ok) {
+                    instanceData = await res.json();
+                    
+                    if (instanceData.name) {
+                        document.getElementById('instanceName').textContent = instanceData.name;
+                        document.getElementById('footerName').textContent = `[${instanceData.name}]`;
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading instance data:', e);
+            }
+        }
+
+        socket.on('connect', () => {
+            loadInstanceData();
+            
+            fetch('/user-session')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.username) {
+                        const pathParts = window.location.pathname.split('/');
+                        const instanceId = pathParts[pathParts.length - 1];
+                        socket.emit('start_terminal', { 
+                            username: data.username,
+                            instanceId: instanceId
+                        });
+                    } else {
+                        window.location.href = '/login.html';
+                    }
+                })
+                .catch(err => {
+                    console.error('Session check failed:', err);
+                    window.location.href = '/login.html';
+                });
+        });
+
+        socket.on('output', (data) => {
+            term.write(data);
+            hideLoader();
+        });
+
+        socket.on('disconnect', () => {
+            term.write('\r\n\x1b[33mDisconnected from server. Reconnecting...\x1b[0m\r\n');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+        });
+
+        term.onData((data) => {
+            socket.emit('input', data);
+            if (data === '\r') {
+                showLoader();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            fitAddon.fit();
+            socket.emit('resize', { cols: term.cols, rows: term.rows });
+        });
+
+        setTimeout(() => {
+            fitAddon.fit();
+            socket.emit('resize', { cols: term.cols, rows: term.rows });
+            term.focus();
+        }, 300);
+
+        function toggleShortcuts() {
+            const bar = document.getElementById('shortcutBar');
+            const btn = document.getElementById('toggleBtn');
+            if (bar.style.display === 'flex') {
+                bar.style.display = 'none';
+                btn.innerText = 'v';
+            } else {
+                bar.style.display = 'flex';
+                btn.innerText = '^';
+            }
+            setTimeout(() => fitAddon.fit(), 100);
+        }
+
+        function sendKey(key) {
+            socket.emit('input', key);
+            term.focus();
+            if (key.includes('\r')) showLoader();
+        }
+
+        function stopTerminal() {
+            socket.emit('kill_term');
+        }
+
+        container.addEventListener('click', () => {
+            term.focus();
+        });
+    </script>
+    <script src="/year.js" defer></script>
+    <script type="module" src="/ambient-background.mjs"></script>
+</body>
+</html>

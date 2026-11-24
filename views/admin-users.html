@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KuRuMi-Host | Accounts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ambient.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 28px;
+            color: #f3edff;
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #090710;
+            background-image: linear-gradient(rgba(185,143,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(185,143,255,.035) 1px, transparent 1px), radial-gradient(ellipse at 85% 0%, rgba(116,67,200,.19), transparent 50%);
+            background-size: 36px 36px, 36px 36px, auto;
+        }
+        .shell { width: min(100%, 1120px); margin: 0 auto; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 36px; }
+        .brand { color: #f3edff; font-size: 19px; font-weight: 700; text-decoration: none; }
+        .nav { display: flex; gap: 16px; font-size: 13px; }
+        a { color: #c39aff; text-decoration: none; }
+        a:hover { color: #75d9e8; }
+        .eyebrow { color: #c39aff; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        h1 { margin: 6px 0 8px; font-size: 34px; }
+        .intro { color: #a89abf; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin: 25px 0 12px; color: #a89abf; font-size: 13px; }
+        .refresh { min-height: 38px; padding: 0 13px; color: #fff; background: linear-gradient(110deg, #7544d8, #a56dff 55%, #56cde8); border: 1px solid rgba(208,185,255,.28); border-radius: 6px; font: inherit; font-weight: 600; cursor: pointer; }
+        .table-wrap { overflow-x: auto; border: 1px solid rgba(201,168,255,.2); border-radius: 8px; background: rgba(22,17,36,.72); backdrop-filter: blur(18px); }
+        table { width: 100%; border-collapse: collapse; min-width: 760px; }
+        th, td { padding: 14px 15px; border-bottom: 1px solid rgba(201,168,255,.13); text-align: left; vertical-align: top; }
+        th { color: #c39aff; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        td { color: #d7cbea; font-size: 13px; }
+        tbody tr:last-child td { border-bottom: 0; }
+        .muted { display: block; margin-top: 4px; color: #8f829f; font-size: 11px; }
+        .status { display: inline-block; padding: 3px 8px; color: #83e3c2; background: rgba(83,211,167,.1); border: 1px solid rgba(83,211,167,.25); border-radius: 999px; font-size: 11px; text-transform: uppercase; }
+        .status.expired, .status.locked { color: #ff9aab; background: rgba(255,130,155,.1); border-color: rgba(255,130,155,.25); }
+        .empty, .error { padding: 30px 18px; color: #a89abf; text-align: center; }
+        .error { color: #ff9aab; }
+        @media (max-width: 700px) { body { padding: 20px 14px; } h1 { font-size: 28px; } }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header class="topbar">
+            <a class="brand" href="/dashboard">KuRuMi-Host</a>
+            <nav class="nav"><a href="/admin/orders">Payment review</a><a href="/dashboard">Dashboard</a><a href="/logout">Logout</a></nav>
+        </header>
+        <p class="eyebrow">Admin · NISAN</p>
+        <h1>Customer accounts</h1>
+        <p class="intro">Review account creation, terminal usage, expiry dates, and remaining time.</p>
+        <div class="toolbar">
+            <span id="accountCount">Loading accounts…</span>
+            <button class="refresh" id="refreshAccounts" type="button">Refresh</button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Username</th><th>Created</th><th>Expires</th><th>Time left</th><th>Terminals</th><th>Status</th></tr>
+                </thead>
+                <tbody id="accountRows"></tbody>
+            </table>
+            <p class="empty" id="emptyState" hidden>No customer accounts yet.</p>
+        </div>
+        <p class="error" id="pageError" hidden></p>
+    </main>
+    <script>
+        const accountRows = document.getElementById('accountRows');
+        const accountCount = document.getElementById('accountCount');
+        const emptyState = document.getElementById('emptyState');
+        const pageError = document.getElementById('pageError');
+
+        function formatDate(value) {
+            if (!value) return '—';
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function cell(row, value, mutedValue) {
+            const item = document.createElement('td');
+            item.textContent = value;
+            if (mutedValue) {
+                const muted = document.createElement('span');
+                muted.className = 'muted';
+                muted.textContent = mutedValue;
+                item.append(muted);
+            }
+            row.append(item);
+        }
+
+        async function loadAccounts() {
+            pageError.hidden = true;
+            try {
+                const response = await fetch('/api/admin/users');
+                const accounts = await response.json();
+                if (!response.ok) throw new Error(accounts.error || 'Could not load accounts.');
+                accountRows.replaceChildren();
+                accountCount.textContent = `${accounts.length} account${accounts.length === 1 ? '' : 's'}`;
+                emptyState.hidden = accounts.length !== 0;
+
+                for (const account of accounts) {
+                    const row = document.createElement('tr');
+                    cell(row, account.username, account.email || '');
+                    cell(row, formatDate(account.created_at));
+                    cell(row, account.expiry_date ? formatDate(account.expiry_date) : 'Never');
+                    cell(row, account.days_remaining === null ? '—' : account.days_remaining === 0 ? 'Expired' : `${account.days_remaining} days`);
+                    const limit = account.instance_count === null ? 'Unlimited' : account.instance_count;
+                    cell(row, `${account.instances_used} / ${limit}`);
+
+                    const statusCell = document.createElement('td');
+                    const status = document.createElement('span');
+                    const expired = account.is_locked || (account.days_remaining !== null && account.days_remaining === 0);
+                    status.className = `status${expired ? ' expired' : ''}`;
+                    status.textContent = expired ? 'Expired' : 'Active';
+                    statusCell.append(status);
+                    row.append(statusCell);
+                    accountRows.append(row);
+                }
+            } catch (error) {
+                pageError.textContent = error.message;
+                pageError.hidden = false;
+            }
+        }
+
+        document.getElementById('refreshAccounts').addEventListener('click', loadAccounts);
+        loadAccounts();
+    </script>
+    <footer class="site-copyright">© <time data-current-year>2026</time> KuRuMi-Host</footer>
+    <script src="/year.js" defer></script>
+    <script type="module" src="/ambient-background.mjs"></script>
+</body>
+</html>
