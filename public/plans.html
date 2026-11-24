@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KuRuMi-Host | Plans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ambient.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 28px;
+            color: #f3edff;
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #090710;
+            background-image: linear-gradient(rgba(185, 143, 255, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(185, 143, 255, .04) 1px, transparent 1px), radial-gradient(ellipse at 75% 0%, rgba(116, 67, 200, .22), transparent 55%);
+            background-size: 34px 34px, 34px 34px, auto;
+        }
+        a { color: #c39aff; text-decoration: none; }
+        a:hover { color: #75d9e8; }
+        .shell { width: min(100%, 980px); margin: 0 auto; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 46px; }
+        .brand { color: #f3edff; font-size: 19px; font-weight: 700; }
+        .back-link { font-size: 14px; }
+        .eyebrow { color: #c39aff; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        h1 { margin: 7px 0 10px; font-size: clamp(30px, 6vw, 46px); line-height: 1.08; }
+        .intro { max-width: 590px; margin: 0 0 30px; color: #a89abf; line-height: 1.6; }
+        .content { display: grid; grid-template-columns: minmax(230px, .8fr) minmax(300px, 1.2fr); gap: 18px; align-items: start; }
+        .plan, .checkout { border: 1px solid rgba(201, 168, 255, .22); border-radius: 8px; background: rgba(22, 17, 36, .72); backdrop-filter: blur(20px); box-shadow: 0 18px 48px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.05); }
+        .plan { padding: 23px; }
+        .plan-name { margin: 0; color: #d7cbea; font-size: 14px; }
+        .price { margin: 10px 0 3px; font-size: 40px; font-weight: 700; }
+        .period { color: #a89abf; font-size: 14px; }
+        .rule { height: 1px; margin: 20px 0; background: rgba(201,168,255,.16); }
+        .included { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; color: #d7cbea; font-size: 14px; }
+        .included li::before { content: '✓'; margin-right: 9px; color: #75d9e8; }
+        .payment-methods { display: grid; gap: 8px; margin-top: 20px; }
+        .payment-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 12px; background: rgba(8,7,16,.48); border: 1px solid rgba(197,165,255,.2); border-radius: 6px; }
+        .payment-provider { color: #f3edff; font-size: 13px; font-weight: 700; }
+        .payment-caption { display: block; margin-top: 3px; color: #a89abf; font-size: 11px; }
+        .payment-number { color: #70e0b0; font-size: 14px; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+        .payment-unavailable { color: #a89abf; font-size: 12px; text-align: right; }
+        .review-note { margin: 22px 0 0; color: #a89abf; font-size: 12px; line-height: 1.5; }
+        .checkout { padding: 23px; }
+        h2 { margin: 0 0 17px; font-size: 19px; }
+        .payment-notice { margin-bottom: 16px; padding: 12px; border: 1px solid rgba(183,138,255,.24); border-radius: 6px; background: rgba(146,97,219,.1); color: #d7cbea; font-size: 13px; line-height: 1.5; }
+        .payment-notice.error { border-color: rgba(255,130,155,.35); color: #ffb6c4; }
+        .receiver { display: block; margin-top: 5px; color: #f3edff; font-weight: 700; overflow-wrap: anywhere; }
+        .field { margin-bottom: 13px; }
+        label { display: block; margin-bottom: 6px; color: #d7cbea; font-size: 13px; }
+        .field.is-invalid label::after { content: ' · ভুল'; color: #ff829b; font-size: 12px; font-weight: 600; }
+        input, select { width: 100%; min-height: 43px; padding: 10px 12px; color: #f3edff; background: rgba(8,7,16,.72); border: 1px solid rgba(197,165,255,.24); border-radius: 6px; font: inherit; outline: none; }
+        input:focus, select:focus { border-color: #b98aff; box-shadow: 0 0 0 3px rgba(168,119,255,.13); }
+        .field.is-valid input, .field.is-valid select { border: 2px solid #42d99b; background: rgba(24,93,67,.16); box-shadow: 0 0 0 2px rgba(66,217,155,.12), 0 0 14px rgba(66,217,155,.08); }
+        .field.is-invalid input, .field.is-invalid select { border-color: rgba(255,130,155,.78); box-shadow: 0 0 0 2px rgba(255,130,155,.1); }
+        input::placeholder { color: #827693; }
+        select option { color: #f3edff; background: #171126; }
+        .submit { width: 100%; min-height: 46px; margin-top: 4px; color: #fff; background: linear-gradient(110deg, #7544d8, #a56dff 55%, #56cde8); border: 1px solid rgba(208,185,255,.28); border-radius: 6px; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 0 20px rgba(151,96,255,.24); transition: transform 160ms ease, box-shadow 160ms ease; }
+        .submit:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(151,96,255,.38); }
+        .submit:disabled { opacity: .48; cursor: not-allowed; }
+        .form-status { min-height: 20px; margin: 12px 0 0; color: #75d9e8; font-size: 13px; }
+        .form-status.error { color: #ff829b; }
+        @media (max-width: 700px) { body { padding: 20px 16px; } .topbar { margin-bottom: 34px; } .content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header class="topbar">
+            <a class="brand" href="/login.html">KuRuMi-Host</a>
+            <a class="back-link" href="/login.html">Back to login</a>
+        </header>
+        <p class="eyebrow">Terminal access</p>
+        <h1>One plan. Three terminals.</h1>
+        <p class="intro">Choose a duration and submit your Nagad transaction ID. The admin checks the payment before activating your account.</p>
+        <div class="content">
+            <section class="plan" aria-labelledby="planName">
+                <p class="plan-name" id="planName">Monthly plan</p>
+                <p class="price" id="planPrice">৳100</p>
+                <p class="period" id="planPeriod">for 1 calendar month · 2% off</p>
+                <div class="rule"></div>
+                <ul class="included">
+                    <li>3 terminal instances</li>
+                    <li>Account access after payment review</li>
+                    <li>Choose 1, 2, 3, 6, 8, or 12 calendar months</li>
+                </ul>
+                <div class="payment-methods" id="paymentMethods" aria-label="Payment methods"></div>
+                <p class="review-note">Short plans receive 2% off; plans of 6 months or more receive 5% off.</p>
+            </section>
+            <section class="checkout" aria-labelledby="checkoutTitle">
+                <h2 id="checkoutTitle">Create purchase request</h2>
+                <div class="payment-notice" id="paymentNotice" role="status">Checking payment setup…</div>
+                <form id="orderForm">
+                    <div class="field">
+                        <label for="durationMonths">Plan duration</label>
+                        <select id="durationMonths" name="durationMonths" required>
+                            <option value="1">1 month · ৳100</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="username">Username</label>
+                        <input id="username" name="username" autocomplete="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_\-]+" required>
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+                    </div>
+                    <div class="field">
+                        <label for="password">Account password</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required>
+                        <p class="review-note">Password must be at least 10 characters. Use your account password to renew.</p>
+                    </div>
+                    <div class="field">
+                        <label for="phone">Payment phone number</label>
+                        <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="24" required>
+                    </div>
+                    <div class="field">
+                        <label>Payment method</label>
+                        <select id="paymentMethod" name="paymentMethod" required disabled>
+                            <option value="">No payment methods configured</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="transactionId">Transaction ID</label>
+                        <input id="transactionId" name="transactionId" minlength="5" maxlength="80" required>
+                    </div>
+                    <button class="submit" id="submitOrder" type="submit" disabled>Submit for review</button>
+                    <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+                </form>
+            </section>
+        </div>
+    </main>
+    <script>
+        const paymentNotice = document.getElementById('paymentNotice');
+        const submitOrder = document.getElementById('submitOrder');
+        const formStatus = document.getElementById('formStatus');
+        const durationSelect = document.getElementById('durationMonths');
+        const paymentMethodSelect = document.getElementById('paymentMethod');
+        const paymentMethodsContainer = document.getElementById('paymentMethods');
+        const orderForm = document.getElementById('orderForm');
+        let storeConfig = null;
+
+        function validateForm() {
+            const fields = [...orderForm.querySelectorAll('input:not([type="hidden"]), select')];
+            const allValid = fields.every(field => field.value.trim() !== '' && field.checkValidity());
+            const hasTouchedInvalid = fields.some(field => field.dataset.touched === 'true' && !(field.value.trim() !== '' && field.checkValidity()));
+
+            for (const field of fields) {
+                const container = field.closest('.field');
+                const touched = field.dataset.touched === 'true';
+                const valid = field.value.trim() !== '' && field.checkValidity();
+                container.classList.toggle('is-valid', valid);
+                container.classList.toggle('is-invalid', touched && !valid);
+            }
+
+            submitOrder.disabled = !allValid || !storeConfig?.checkoutEnabled;
+            formStatus.classList.toggle('error', !allValid);
+            if (!allValid) {
+                formStatus.textContent = hasTouchedInvalid
+                    ? 'লাল চিহ্নিত field ঠিক করো; সবুজ চিহ্নিত field ঠিক আছে।'
+                    : 'প্রয়োজনীয় তথ্যগুলো পূরণ করো; ভুল হলে field লাল দেখাবে।';
+            } else if (!storeConfig?.checkoutEnabled) {
+                formStatus.classList.remove('error');
+                formStatus.textContent = 'সব তথ্য ঠিক আছে, কিন্তু checkout server এখনো চালু হয়নি; এখন payment কোরো না।';
+            } else {
+                formStatus.classList.remove('error');
+                formStatus.textContent = 'সব field ঠিক আছে; payment করে transaction ID submit করতে পারো।';
+            }
+        }
+
+        function selectedPlan() {
+            return storeConfig?.plans?.find(plan => plan.months === Number(durationSelect.value)) || null;
+        }
+
+        function updatePlanSummary() {
+            const plan = selectedPlan();
+            if (!plan) return;
+            document.getElementById('planPrice').textContent = `৳${plan.price}`;
+            document.getElementById('planPeriod').textContent = `for ${plan.months} ${plan.months === 1 ? 'calendar month' : 'calendar months'} · ${plan.discountPercent}% off`;
+            renderPaymentNotice();
+        }
+
+        function renderPaymentNotice() {
+            if (!storeConfig) return;
+            const method = storeConfig.paymentMethods.find(item => item.id === paymentMethodSelect.value);
+            if (!method) {
+                paymentNotice.textContent = 'No payment methods are configured yet.';
+                return;
+            }
+            const nextStep = storeConfig.checkoutEnabled
+                ? `After ${method.name} transfer, submit the transaction ID for admin review.`
+                : 'Checkout is disabled; do not send payment yet. Isolated hosting must be enabled first.';
+            paymentNotice.replaceChildren(
+                document.createTextNode(`${method.name} receiver:`),
+                Object.assign(document.createElement('span'), { className: 'receiver', textContent: method.receiver }),
+                Object.assign(document.createElement('span'), { className: 'review-note', textContent: nextStep })
+            );
+            paymentNotice.classList.toggle('error', !storeConfig.checkoutEnabled);
+        }
+
+        function renderPaymentMethods(methods) {
+            paymentMethodsContainer.replaceChildren();
+            const configuredMethods = methods.filter(method => method.configured && method.receiver);
+            paymentMethodSelect.replaceChildren();
+
+            for (const method of methods) {
+                const row = document.createElement('div');
+                row.className = 'payment-row';
+                const details = document.createElement('div');
+                const provider = document.createElement('span');
+                provider.className = 'payment-provider';
+                provider.textContent = method.name;
+                const caption = document.createElement('span');
+                caption.className = 'payment-caption';
+                caption.textContent = method.configured ? 'Merchant payment' : 'Not available yet';
+                details.append(provider, caption);
+                const number = document.createElement(method.configured ? 'strong' : 'span');
+                number.className = method.configured ? 'payment-number' : 'payment-unavailable';
+                number.textContent = method.receiver || 'Number not added';
+                row.append(details, number);
+                paymentMethodsContainer.append(row);
+            }
+
+            if (!configuredMethods.length) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No payment methods configured';
+                paymentMethodSelect.append(option);
+                paymentMethodSelect.disabled = true;
+                return;
+            }
+
+            for (const method of configuredMethods) {
+                const option = document.createElement('option');
+                option.value = method.id;
+                option.textContent = method.name;
+                paymentMethodSelect.append(option);
+            }
+            paymentMethodSelect.disabled = false;
+        }
+
+        async function loadPaymentConfig() {
+            try {
+                const response = await fetch('/api/store/config');
+                storeConfig = await response.json();
+                if (!response.ok) throw new Error(storeConfig.error || 'Could not load payment setup.');
+                renderPaymentMethods(storeConfig.paymentMethods);
+                durationSelect.replaceChildren(...storeConfig.plans.map(plan => {
+                    const option = document.createElement('option');
+                    option.value = plan.months;
+                    option.textContent = `${plan.months} ${plan.months === 1 ? 'month' : 'months'} · ৳${plan.price} (${plan.discountPercent}% off)`;
+                    return option;
+                }));
+                updatePlanSummary();
+                if (!storeConfig.checkoutEnabled || !storeConfig.paymentReceiver) {
+                    renderPaymentNotice();
+                    submitOrder.disabled = true;
+                    return;
+                }
+                submitOrder.disabled = false;
+                updatePlanSummary();
+            } catch (error) {
+                paymentNotice.classList.add('error');
+                paymentNotice.textContent = error.message;
+            }
+        }
+
+        durationSelect.addEventListener('change', updatePlanSummary);
+        paymentMethodSelect.addEventListener('change', updatePlanSummary);
+        orderForm.querySelectorAll('input:not([type="hidden"]), select').forEach(field => {
+            field.addEventListener('input', () => {
+                field.dataset.touched = 'true';
+                validateForm();
+            });
+            field.addEventListener('blur', () => {
+                field.dataset.touched = 'true';
+                validateForm();
+            });
+        });
+        orderForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            submitOrder.disabled = true;
+            formStatus.classList.remove('error');
+            formStatus.textContent = 'Submitting...';
+            const body = Object.fromEntries(new FormData(event.currentTarget).entries());
+
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Could not submit request.');
+                event.currentTarget.reset();
+                formStatus.textContent = `Request ${result.id} submitted. Wait for admin payment review before logging in.`;
+            } catch (error) {
+                formStatus.classList.add('error');
+                formStatus.textContent = error.message;
+            } finally {
+                validateForm();
+            }
+        });
+
+        loadPaymentConfig();
+        validateForm();
+    </script>
+    <footer class="site-copyright">© <time data-current-year>2026</time> KuRuMi-Host</footer>
+    <script src="/year.js" defer></script>
+    <script type="module" src="/ambient-background.mjs"></script>
+</body>
+</html>

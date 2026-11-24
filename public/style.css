@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap');
+
+:root {
+    --primary-color: #FF5722;
+    --bg-color: #f4f4f4;
+    --term-bg: #000000;
+    --header-bg: #111;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Login Page Styles */
+.login-body {
+    background-color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+
+.login-logo {
+    font-size: 3em;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.login-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8em;
+    color: #333;
+    margin: 0;
+}
+
+.login-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 0.9em;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-weight: bold;
+    font-size: 0.85em;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: 0.3s;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.1);
+}
+
+.login-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #e64a19;
+}
+
+.error-msg {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 10px;
+    display: none;
+}
+
+/* Terminal Page Styles */
+.terminal-body {
+    background-color: var(--term-bg);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    background-color: var(--header-bg);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary-color);
+    box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+}
+
+.brand {
+    color: var(--primary-color);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.6em;
+    letter-spacing: 2px;
+}
+
+.exit-btn {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 8px 16px;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    background: var(--primary-color);
+    transition: 0.3s;
+}
+
+.exit-btn:hover {
+    background: transparent;
+    color: var(--primary-color);
+}
+
+#terminal-container {
+    flex-grow: 1;
+    width: 100%;
+    background-color: black;
+}
+
+.footer {
+    background-color: #080808;
+    color: #666;
+    text-align: center;
+    padding: 5px;
+    font-family: monospace;
+    border-top: 1px solid #222;
+    font-size: 0.8em;
+}

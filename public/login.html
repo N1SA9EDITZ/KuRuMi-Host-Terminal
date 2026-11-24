@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/terminal.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KuRuMi-Host | Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ambient.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            color: #f3edff;
+            background-color: #090710;
+            background-image: linear-gradient(rgba(185, 143, 255, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(185, 143, 255, 0.045) 1px, transparent 1px), radial-gradient(ellipse at 50% 0%, rgba(116, 67, 200, 0.28), transparent 58%), linear-gradient(145deg, #090710, #151023 58%, #0b1019);
+            background-size: 34px 34px, 34px 34px, auto, auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+            perspective: 1500px;
+        }
+
+        .auth-card {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            transform-style: preserve-3d;
+            transition: transform 850ms cubic-bezier(.2,.75,.2,1);
+        }
+
+        .auth-card.flipped { transform: rotateY(180deg); }
+
+        .auth-panel {
+            position: absolute;
+            inset: 0;
+            height: 100%;
+            overflow-y: auto;
+            padding: 34px 32px;
+            text-align: center;
+            background: rgba(22, 17, 36, 0.78);
+            border: 1px solid rgba(201, 168, 255, 0.28);
+            border-radius: 12px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 42px rgba(145, 87, 255, 0.16), inset 0 1px rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(22px);
+            backface-visibility: hidden;
+        }
+
+        .signup-panel { transform: rotateY(180deg); }
+
+        .auth-switch {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            color: #a89abf;
+            font-size: 13px;
+        }
+
+        .switch-circle {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            color: #f3edff;
+            background: rgba(146, 97, 219, .18);
+            border: 1px solid rgba(183, 138, 255, .36);
+            border-radius: 50%;
+            font: inherit;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 220ms ease, box-shadow 220ms ease;
+        }
+
+        .switch-circle:hover { transform: rotate(90deg); box-shadow: 0 0 18px rgba(151, 96, 255, .3); }
+        .auth-message { min-height: 20px; margin: 12px 0 0; color: #75d9e8; font-size: 12px; }
+        .auth-message.error { color: #ff829b; }
+
+        .auth-panel .input-group { margin-bottom: 15px; }
+        .auth-panel .login-subtitle { margin-bottom: 22px; }
+        .auth-panel .terminal-icon { margin-bottom: 9px; }
+        .signup-panel .login-title { font-size: 25px; }
+        .signup-panel .input-group input { min-height: 48px; }
+
+        .signup-plan-note {
+            margin: 12px 0 0;
+            color: #a89abf;
+            font-size: 12px;
+        }
+        
+        .terminal-icon {
+            font-size: 48px;
+            color: #c29aff;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 14px rgba(173, 123, 255, 0.7));
+        }
+        
+        .terminal-icon svg {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f3edff;
+            margin-bottom: 5px;
+        }
+        
+        .login-subtitle {
+            color: #a89abf;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            color: #d7cbea;
+            margin-bottom: 8px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(197, 165, 255, 0.24);
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: 'Space Grotesk', sans-serif;
+            background: rgba(8, 7, 16, 0.62);
+            color: #f3edff;
+            outline: none;
+            transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        }
+        
+        .input-group input:focus {
+            border-color: #b98aff;
+            box-shadow: 0 0 0 3px rgba(168, 119, 255, 0.14), 0 0 20px rgba(168, 119, 255, 0.12);
+        }
+        
+        .input-group input::placeholder {
+            color: #827693;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border: 1px solid rgba(208, 185, 255, 0.28);
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+            background: linear-gradient(110deg, #7544d8, #a56dff 55%, #56cde8);
+            color: white;
+            margin-top: 10px;
+            box-shadow: 0 0 24px rgba(151, 96, 255, 0.3), inset 0 1px rgba(255, 255, 255, 0.26);
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(151, 96, 255, 0.42), 0 0 24px rgba(99, 214, 235, 0.18);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .plans-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 13px 14px;
+            color: #e8dfff;
+            background: rgba(146, 97, 219, 0.1);
+            border: 1px solid rgba(183, 138, 255, 0.24);
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: left;
+            text-decoration: none;
+            transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+        }
+
+        .plans-link:hover {
+            color: #fff;
+            border-color: rgba(183, 138, 255, 0.6);
+            box-shadow: 0 0 22px rgba(151, 96, 255, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .plans-link strong { color: #c39aff; white-space: nowrap; }
+
+        .forgot-link {
+            display: block;
+            margin: -4px 0 12px;
+            color: #c39aff;
+            font-size: 12px;
+            text-align: right;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover { color: #75d9e8; }
+
+        .forgot-overlay[hidden] { display: none; }
+
+        .forgot-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            background: rgba(5, 4, 10, .72);
+            backdrop-filter: blur(12px);
+        }
+
+        .forgot-panel {
+            width: min(100%, 430px);
+            padding: 25px;
+            color: #f3edff;
+            background: rgba(22, 17, 36, .96);
+            border: 1px solid rgba(201, 168, 255, .3);
+            border-radius: 10px;
+            box-shadow: 0 24px 80px rgba(0,0,0,.55), 0 0 35px rgba(145,87,255,.18);
+        }
+
+        .forgot-heading { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+        .forgot-heading h2 { margin: 0; font-size: 21px; }
+        .forgot-close { width: 32px; height: 32px; color: #d7cbea; background: rgba(255,255,255,.06); border: 1px solid rgba(201,168,255,.2); border-radius: 6px; cursor: pointer; }
+        .forgot-help { margin: 0 0 16px; color: #b4a8c9; font-size: 13px; line-height: 1.55; }
+        .forgot-help a { color: #75d9e8; }
+        .forgot-status { min-height: 20px; margin: 12px 0 0; color: #75d9e8; font-size: 12px; }
+        .forgot-status.error { color: #ff829b; }
+        .forgot-secondary { margin-top: 12px; padding: 0; color: #c39aff; background: none; border: 0; font: inherit; font-size: 12px; cursor: pointer; }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-msg {
+            color: #ff829b;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .support-widget {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 20;
+        }
+
+        .support-panel {
+            position: absolute;
+            right: 0;
+            bottom: 62px;
+            width: min(340px, calc(100vw - 32px));
+            padding: 18px;
+            color: #f3edff;
+            background: rgba(22, 17, 36, 0.9);
+            border: 1px solid rgba(201, 168, 255, 0.28);
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 28px rgba(145, 87, 255, 0.16);
+            backdrop-filter: blur(24px);
+            transform-origin: bottom right;
+            animation: support-arrive 180ms ease-out both;
+        }
+
+        .support-panel[hidden] { display: none; }
+
+        .support-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .support-kicker {
+            color: #c39aff;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .support-title { margin-top: 3px; font-size: 18px; }
+
+        .support-close {
+            width: 30px;
+            height: 30px;
+            color: #cbbce1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(201, 168, 255, 0.18);
+            border-radius: 6px;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .support-message {
+            margin-bottom: 14px;
+            padding: 11px 12px;
+            color: #d7cbea;
+            background: rgba(146, 97, 219, 0.12);
+            border: 1px solid rgba(201, 168, 255, 0.12);
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .support-form { display: grid; gap: 10px; }
+
+        .support-form textarea {
+            width: 100%;
+            min-height: 92px;
+            resize: vertical;
+            padding: 11px 12px;
+            color: #f3edff;
+            background: rgba(8, 7, 16, 0.72);
+            border: 1px solid rgba(197, 165, 255, 0.24);
+            border-radius: 6px;
+            font: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .support-form textarea:focus { border-color: #b98aff; box-shadow: 0 0 0 3px rgba(168, 119, 255, 0.13); }
+        .support-form textarea::placeholder { color: #827693; }
+
+        .support-send, .support-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #fff;
+            background: linear-gradient(110deg, #7544d8, #a56dff 55%, #56cde8);
+            border: 1px solid rgba(208, 185, 255, 0.28);
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(151, 96, 255, 0.24), inset 0 1px rgba(255, 255, 255, 0.2);
+            transition: transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        .support-send { min-height: 42px; border-radius: 6px; }
+        .support-send:hover, .support-toggle:hover { transform: translateY(-2px); box-shadow: 0 0 27px rgba(151, 96, 255, 0.38); }
+        .support-send svg, .support-toggle svg { width: 17px; height: 17px; }
+
+        .support-email {
+            display: inline-block;
+            margin-top: 12px;
+            color: #c39aff;
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .support-email:hover { color: #75d9e8; }
+
+        .support-toggle {
+            min-height: 48px;
+            padding: 0 16px;
+            border-radius: 6px;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @keyframes support-arrive {
+            from { opacity: 0; transform: translateY(8px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes panel-arrive {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card { height: 690px; }
+            .auth-panel { padding: 30px 23px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .auth-card { transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="auth-card" id="authCard">
+            <section class="auth-panel login-panel" aria-labelledby="loginTitle">
+                <div class="terminal-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="4 17 10 11 4 5"></polyline>
+                        <line x1="12" y1="19" x2="20" y2="19"></line>
+                    </svg>
+                </div>
+                <h1 class="login-title" id="loginTitle">KuRuMi-Host</h1>
+                <p class="login-subtitle">Login to your terminal</p>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="username">Username or email</label>
+                        <input type="text" id="username" autocomplete="username" required placeholder="Enter username or email">
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" autocomplete="current-password" required placeholder="Enter password">
+                    </div>
+                    <button class="forgot-link" id="openForgot" type="button">Forgot password?</button>
+                    <button type="submit" class="login-btn" id="btn">
+                        <div class="spinner" id="spinner"></div>
+                        <span id="btnText">Login</span>
+                    </button>
+                </form>
+                <a class="plans-link" href="/plans.html"><span>View terminal plans</span><strong>From ৳98</strong></a>
+                <div id="errorMsg" class="error-msg" role="status">Invalid credentials.</div>
+                <div class="auth-switch">
+                    <span>New here? Create an account</span>
+                    <button type="button" class="switch-circle" id="showSignup" aria-label="Open sign-up form">+</button>
+                </div>
+            </section>
+
+            <section class="auth-panel signup-panel" aria-labelledby="signupTitle">
+                <div class="terminal-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="10" cy="7" r="4"></circle>
+                        <path d="M20 8v6m-3-3h6"></path>
+                    </svg>
+                </div>
+                <h1 class="login-title" id="signupTitle">Create account</h1>
+                <p class="login-subtitle">Sign up, then choose a plan to activate terminals.</p>
+                <form id="signupForm">
+                    <div class="input-group">
+                        <label for="signupName">Full name</label>
+                        <input id="signupName" name="name" autocomplete="name" minlength="2" maxlength="80" required placeholder="Your name">
+                    </div>
+                    <div class="input-group">
+                        <label for="signupUsername">Username</label>
+                        <input id="signupUsername" name="username" autocomplete="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_\-]+" required placeholder="Choose a username">
+                    </div>
+                    <div class="input-group">
+                        <label for="signupEmail">Email address</label>
+                        <input id="signupEmail" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label for="signupTelegramId">Telegram user ID</label>
+                        <input id="signupTelegramId" name="telegramId" inputmode="numeric" pattern="[0-9]{5,20}" minlength="5" maxlength="20" required placeholder="Get this from the bot">
+                    </div>
+                    <p class="signup-plan-note">Open <a href="https://t.me/KuRuMi_Host_bot" target="_blank" rel="noopener noreferrer">@KuRuMi_Host_bot</a>, press <strong>Start</strong>, then send <code>/id</code> and enter the number it returns.</p>
+                    <div class="input-group">
+                        <label for="signupPassword">Password</label>
+                        <input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="At least 10 characters">
+                    </div>
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirm password</label>
+                        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="Repeat password">
+                    </div>
+                    <button type="submit" class="login-btn" id="signupButton">Create account</button>
+                    <p class="signup-plan-note">Account stays locked until a plan payment is reviewed.</p>
+                    <div id="signupStatus" class="auth-message" role="status" aria-live="polite"></div>
+                </form>
+                <div class="auth-switch">
+                    <span>Already have an account?</span>
+                    <button type="button" class="switch-circle" id="showLogin" aria-label="Return to login">←</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="forgot-overlay" id="forgotOverlay" hidden>
+        <section class="forgot-panel" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+            <div class="forgot-heading">
+                <h2 id="forgotTitle">Reset password</h2>
+                <button class="forgot-close" id="closeForgot" type="button" aria-label="Close password reset">×</button>
+            </div>
+            <p class="forgot-help">First open <a href="https://t.me/KuRuMi_Host_bot" target="_blank" rel="noopener noreferrer">@KuRuMi_Host_bot</a> and press <strong>Start</strong>. Send <code>/id</code> to the bot and use the Telegram ID it returns below.</p>
+            <form id="forgotRequestForm">
+                <div class="input-group"><label for="forgotIdentifier">Username or email</label><input id="forgotIdentifier" name="identifier" autocomplete="username" required></div>
+                <div class="input-group"><label for="forgotTelegramId">Telegram user ID</label><input id="forgotTelegramId" name="telegramId" inputmode="numeric" pattern="[0-9]{5,20}" minlength="5" maxlength="20" required></div>
+                <button class="login-btn" id="sendResetCode" type="submit">Send OTP in Telegram</button>
+            </form>
+            <form id="forgotResetForm" hidden>
+                <input type="hidden" id="resetIdentifier" name="identifier">
+                <input type="hidden" id="resetTelegramId" name="telegramId">
+                <div class="input-group"><label for="resetCode">6-digit OTP</label><input id="resetCode" name="code" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" required></div>
+                <div class="input-group"><label for="resetPassword">New password</label><input id="resetPassword" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>
+                <div class="input-group"><label for="resetConfirmPassword">Confirm new password</label><input id="resetConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>
+                <button class="login-btn" id="resetPasswordButton" type="submit">Update password</button>
+            </form>
+            <p class="forgot-status" id="forgotStatus" role="status" aria-live="polite"></p>
+            <button class="forgot-secondary" id="returnToLogin" type="button">Back to login</button>
+        </section>
+    </div>
+
+    <aside class="support-widget">
+        <section class="support-panel" id="supportPanel" aria-labelledby="supportTitle" hidden>
+            <div class="support-heading">
+                <div>
+                    <p class="support-kicker">KuRuMi-Host</p>
+                    <h2 class="support-title" id="supportTitle">Contact support</h2>
+                </div>
+                <button class="support-close" id="supportClose" type="button" aria-label="Close contact panel">×</button>
+            </div>
+            <p class="support-message">Hi! Tell us what you need help with.</p>
+            <form class="support-form" id="supportForm">
+                <label class="visually-hidden" for="supportMessage">Your message</label>
+                <textarea id="supportMessage" maxlength="1000" placeholder="Write your message..." required></textarea>
+                <button class="support-send" type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m22 2-7 20-4-9-9-4Z"></path>
+                        <path d="M22 2 11 13"></path>
+                    </svg>
+                    Send message
+                </button>
+            </form>
+            <a class="support-email" href="mailto:nisaneditz@gmail.com">nisaneditz@gmail.com</a>
+        </section>
+        <button class="support-toggle" id="supportToggle" type="button" aria-expanded="false" aria-controls="supportPanel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"></path>
+            </svg>
+            Contact
+        </button>
+    </aside>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+            const errorMsg = document.getElementById('errorMsg');
+
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.innerText = 'Logging in...';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch('/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = result.redirect;
+                } else {
+                    throw new Error(result.message || 'Invalid login');
+                }
+            } catch (error) {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    spinner.style.display = 'none';
+                    btnText.innerText = 'Login';
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = error.message || 'Invalid Credentials!';
+                }, 500);
+            }
+        });
+
+        const authCard = document.getElementById('authCard');
+        document.getElementById('showSignup').addEventListener('click', () => authCard.classList.add('flipped'));
+        document.getElementById('showLogin').addEventListener('click', () => authCard.classList.remove('flipped'));
+
+        const forgotOverlay = document.getElementById('forgotOverlay');
+        const forgotRequestForm = document.getElementById('forgotRequestForm');
+        const forgotResetForm = document.getElementById('forgotResetForm');
+        const forgotStatus = document.getElementById('forgotStatus');
+
+        function closeForgot() {
+            forgotOverlay.hidden = true;
+            document.getElementById('openForgot').focus();
+        }
+
+        document.getElementById('openForgot').addEventListener('click', () => {
+            forgotOverlay.hidden = false;
+            forgotStatus.textContent = '';
+            forgotRequestForm.hidden = false;
+            forgotResetForm.hidden = true;
+            document.getElementById('forgotIdentifier').focus();
+        });
+        document.getElementById('closeForgot').addEventListener('click', closeForgot);
+        document.getElementById('returnToLogin').addEventListener('click', () => {
+            closeForgot();
+            authCard.classList.remove('flipped');
+        });
+
+        forgotRequestForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const button = document.getElementById('sendResetCode');
+            const identifier = document.getElementById('forgotIdentifier').value.trim();
+            const telegramId = document.getElementById('forgotTelegramId').value.trim();
+            button.disabled = true;
+            forgotStatus.className = 'forgot-status';
+            forgotStatus.textContent = 'Requesting a code…';
+
+            try {
+                const response = await fetch('/api/auth/forgot/request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier, telegramId })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Could not send code.');
+                document.getElementById('resetIdentifier').value = identifier;
+                document.getElementById('resetTelegramId').value = telegramId;
+                forgotRequestForm.hidden = true;
+                forgotResetForm.hidden = false;
+                forgotStatus.textContent = `${result.message} Enter the code within 5 minutes.`;
+                document.getElementById('resetCode').focus();
+            } catch (error) {
+                forgotStatus.className = 'forgot-status error';
+                forgotStatus.textContent = error.message;
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        forgotResetForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const button = document.getElementById('resetPasswordButton');
+            const password = document.getElementById('resetPassword').value;
+            const confirmPassword = document.getElementById('resetConfirmPassword').value;
+            if (password !== confirmPassword) {
+                forgotStatus.className = 'forgot-status error';
+                forgotStatus.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            button.disabled = true;
+            forgotStatus.className = 'forgot-status';
+            forgotStatus.textContent = 'Updating password…';
+            const body = Object.fromEntries(new FormData(forgotResetForm).entries());
+            try {
+                const response = await fetch('/api/auth/forgot/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Could not reset password.');
+                forgotStatus.textContent = result.message;
+                forgotResetForm.reset();
+            } catch (error) {
+                forgotStatus.className = 'forgot-status error';
+                forgotStatus.textContent = error.message;
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const signupForm = event.currentTarget;
+            const signupButton = document.getElementById('signupButton');
+            const signupStatus = document.getElementById('signupStatus');
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                signupStatus.className = 'auth-message error';
+                signupStatus.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            signupButton.disabled = true;
+            signupStatus.className = 'auth-message';
+            signupStatus.textContent = 'Creating your account…';
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Object.fromEntries(new FormData(signupForm).entries()))
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Could not create account.');
+                signupStatus.textContent = result.message;
+                window.setTimeout(() => { window.location.href = result.redirect; }, 900);
+            } catch (error) {
+                signupStatus.className = 'auth-message error';
+                signupStatus.textContent = error.message;
+                signupButton.disabled = false;
+            }
+        });
+
+        const supportPanel = document.getElementById('supportPanel');
+        const supportToggle = document.getElementById('supportToggle');
+        const supportMessage = document.getElementById('supportMessage');
+
+        function setSupportOpen(isOpen) {
+            supportPanel.hidden = !isOpen;
+            supportToggle.setAttribute('aria-expanded', String(isOpen));
+            if (isOpen) supportMessage.focus();
+            else supportToggle.focus();
+        }
+
+        supportToggle.addEventListener('click', () => setSupportOpen(supportPanel.hidden));
+        document.getElementById('supportClose').addEventListener('click', () => setSupportOpen(false));
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !supportPanel.hidden) setSupportOpen(false);
+            if (event.key === 'Escape' && !forgotOverlay.hidden) closeForgot();
+        });
+        document.getElementById('supportForm').addEventListener('submit', event => {
+            event.preventDefault();
+            const subject = encodeURIComponent('KuRuMi-Host support');
+            const body = encodeURIComponent(supportMessage.value.trim());
+            window.location.href = `mailto:nisaneditz@gmail.com?subject=${subject}&body=${body}`;
+        });
+    </script>
+    <footer class="site-copyright login-copyright">© <time data-current-year>2026</time> KuRuMi-Host</footer>
+    <script src="/year.js" defer></script>
+    <script type="module" src="/ambient-background.mjs"></script>
+</body>
+</html>
